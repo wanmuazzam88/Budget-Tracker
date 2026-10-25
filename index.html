@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Monthly Expense &amp; Budget Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Minimalist Top Navigation -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="3"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Expense Tracker</h1>
+          <span class="cycle-badge"><span class="live-dot"></span>Oct — Nov 2026</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <!-- ==============================================
+           TAB VIEW 1: OVERVIEW (Home)
+           ============================================== -->
+      <div class="app-view active-view" id="view-overview" role="tabpanel" aria-labelledby="tab-overview">
+        <!-- Hero Balance & Key Metrics -->
+        <section class="hero-card" id="balance-hero-card">
+          <div class="hero-left">
+            <div class="eyebrow-row">
+              <span class="eyebrow">MONTHLY SUMMARY</span>
+              <span class="zone-pill" id="hero-zone-indicator">
+                <span class="zone-dot"></span>
+                <span id="hero-zone-text">Blue Zone</span>
+              </span>
+            </div>
+
+            <div class="hero-stats-row">
+              <div class="stat-item">
+                <span class="stat-label">This Month Budget</span>
+                <span class="stat-value" id="hero-budget-amount">RM 2,500.00</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <span class="stat-label">Total Spent</span>
+                <span class="stat-value text-pink" id="hero-spent-amount">RM 350.50</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-right">
+            <div class="gauge-container">
+              <svg class="radial-gauge" viewBox="0 0 180 180" aria-label="Remaining Balance">
+                <circle class="gauge-track" cx="90" cy="90" r="75" />
+                <circle class="gauge-progress" id="gauge-fill-circle" cx="90" cy="90" r="75" />
+              </svg>
+              <div class="gauge-inner">
+                <span class="gauge-caption">BALANCE LEFT</span>
+                <div class="gauge-balance-group" id="gauge-balance-group" role="button" tabindex="0" title="Click to hide/show balance" aria-label="Toggle balance visibility">
+                  <span class="gauge-currency">RM</span>
+                  <span class="gauge-val" id="gauge-balance-text">2,149.50</span>
+                </div>
+                <button type="button" class="btn-balance-eye" id="btn-toggle-balance" title="Hide balance" aria-label="Toggle balance visibility">
+                  <svg class="eye-open-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg class="eye-off-icon hidden" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                    <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                    <line x1="2" y1="2" x2="22" y2="22"></line>
+                  </svg>
+                  <span class="eye-btn-text">Hide</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Monthly Safety Check (3-Second Check) -->
+        <section class="guardrails-grid" aria-label="Monthly Safety Check">
+          <div class="guardrail-pill" id="rule-card-1">
+            <div class="guardrail-top">
+              <span class="guardrail-title">3-Second Check</span>
+              <span class="guardrail-badge" id="rule1-badge">Safe</span>
+            </div>
+            <div class="guardrail-sub">
+              <span id="rule1-headroom">RM 1,649.50</span> safe to spend
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Activity Preview -->
+        <section class="surface-card recent-activity-card">
+          <div class="card-header">
+            <div>
+              <h2>Recent Activity</h2>
+              <p class="recent-sub">Latest expenses across categories</p>
+            </div>
+          </div>
+
+          <div class="recent-tx-list" id="recent-tx-list">
+            <!-- Populated by app.js -->
+          </div>
+        </section>
+      </div>
+
+      <!-- ==============================================
+           TAB VIEW 2: CATEGORIES
+           ============================================== -->
+      <div class="app-view" id="view-categories" role="tabpanel" aria-labelledby="tab-categories">
+        <section class="surface-card categories-view-card">
+          <div class="card-header category-card-header">
+            <div class="cat-header-text">
+              <div class="cat-title-row">
+                <h2>Category Budgets</h2>
+              </div>
+              <p class="recent-sub cat-subtitle">Click any category below to key in an expense</p>
+            </div>
+          </div>
+
+          <div class="category-list" id="category-list">
+            <!-- Populated by app.js -->
+          </div>
+
+          <div class="category-footer" id="category-footer">
+            <!-- Populated by app.js -->
+          </div>
+        </section>
+      </div>
+
+      <!-- ==============================================
+           TAB VIEW 3: SAVINGS (MULTI-PLATFORM)
+           ============================================== -->
+      <div class="app-view" id="view-savings" role="tabpanel" aria-labelledby="tab-savings">
+        <section class="surface-card savings-card">
+          <div class="card-header">
+            <div>
+              <span class="section-tag">MULTI-PLATFORM SAVINGS</span>
+              <h2>Savings Tracker</h2>
+              <p class="savings-subtitle">Track money saved across Versa, Shopee &amp; your stash platforms</p>
+            </div>
+            <button type="button" class="cat-add-btn" id="btn-open-add-platform" title="Add platform" aria-label="Add platform">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Total Savings Stats Header -->
+          <div class="savings-metrics-grid">
+            <div class="sav-metric">
+              <span class="sav-metric-label">Total Saved</span>
+              <strong class="sav-metric-val text-blue" id="savings-total-amount">RM 2,070.00</strong>
+            </div>
+            <div class="sav-metric">
+              <span class="sav-metric-label">Active Platforms</span>
+              <strong class="sav-metric-val" id="savings-platforms-count">2 Platforms</strong>
+            </div>
+            <div class="sav-metric">
+              <span class="sav-metric-label">Saved This Month</span>
+              <strong class="sav-metric-val text-green" id="savings-month-deposited">+RM 470.00</strong>
+            </div>
+          </div>
+
+          <!-- Platform Stashes Cards (Versa, Shopee, etc.) -->
+          <div class="savings-platforms-grid" id="savings-platforms-container">
+            <!-- Rendered by app.js -->
+          </div>
+        </section>
+      </div>
+
+      <!-- ==============================================
+           TAB VIEW 4: SETTINGS
+           ============================================== -->
+      <div class="app-view" id="view-settings" role="tabpanel" aria-labelledby="tab-settings">
+        <!-- Budget Allocations Section -->
+        <section class="surface-card settings-card">
+          <div class="card-header">
+            <div>
+              <h2>Budget Allocations</h2>
+              <p class="recent-sub">Adjust monthly spending limits for each category</p>
+            </div>
+          </div>
+
+          <form id="form-settings-budgets" class="settings-alloc-list">
+            <!-- Populated by app.js -->
+          </form>
+
+          <div class="settings-actions">
+            <button type="button" id="btn-save-settings-budgets" class="btn btn-primary">
+              Save Allocations
+            </button>
+          </div>
+        </section>
+
+        <!-- Preferences & Data Management -->
+        <section class="surface-card settings-card">
+          <div class="card-header">
+            <div>
+              <h2>Preferences &amp; Data</h2>
+              <p class="recent-sub">App preferences and data management</p>
+            </div>
+          </div>
+
+          <div class="settings-options-list">
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-title">Active Cycle</span>
+                <span class="settings-row-desc">October 2026 — November 2026</span>
+              </div>
+              <span class="settings-pill">Active</span>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-title">Balance Privacy</span>
+                <span class="settings-row-desc">Hide or show remaining money in circular gauge</span>
+              </div>
+              <button type="button" id="btn-settings-toggle-privacy" class="btn btn-ghost btn-sm">
+                Toggle Masking
+              </button>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-row-text">
+                <span class="settings-row-title">Reset Tracker Data</span>
+                <span class="settings-row-desc">Restore original sample allocations and transactions</span>
+              </div>
+              <button type="button" id="btn-settings-reset-data" class="btn btn-ghost-danger btn-sm">
+                Reset to Default
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ==============================================
+         BOTTOM-DOWN NAVIGATION MENU
+         ============================================== -->
+    <nav class="bottom-nav" aria-label="App Navigation">
+      <button type="button" class="bottom-nav-item active" id="tab-overview" data-tab="view-overview" aria-label="Overview tab" aria-selected="true">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </span>
+        <span class="nav-label">Overview</span>
+        <span class="nav-indicator"></span>
+      </button>
+
+      <button type="button" class="bottom-nav-item" id="tab-categories" data-tab="view-categories" aria-label="Categories tab" aria-selected="false">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+          </svg>
+        </span>
+        <span class="nav-label">Categories</span>
+        <span class="nav-indicator"></span>
+      </button>
+
+      <button type="button" class="bottom-nav-item" id="tab-savings" data-tab="view-savings" aria-label="Savings tab" aria-selected="false">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 20h10"></path>
+            <path d="M10 20c5.5-2.5.8-6.4 3-13"></path>
+            <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"></path>
+            <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"></path>
+          </svg>
+        </span>
+        <span class="nav-label">Savings</span>
+        <span class="nav-indicator"></span>
+      </button>
+
+      <button type="button" class="bottom-nav-item" id="tab-settings" data-tab="view-settings" aria-label="Settings tab" aria-selected="false">
+        <span class="nav-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </span>
+        <span class="nav-label">Settings</span>
+        <span class="nav-indicator"></span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ASSISTIVETOUCH 3-SECOND CHECK FLOATING BUTTON -->
+  <div id="assistive-touch-btn" class="assistive-touch docked-right" role="button" tabindex="0" title="3-Second Check (Drag to move, snaps to nearest side, tap to check)" aria-label="3-Second Purchase Check (Moveable button)">
+    <div class="assistive-inner-ring">
+      <div class="assistive-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+      </div>
+    </div>
+    <span class="assistive-tooltip">3-Sec Check</span>
+  </div>
+
+  <!-- MODAL 1: 3-Second Purchase Check -->
+  <div class="modal-backdrop hidden" id="modal-three-sec" role="dialog" aria-modal="true" aria-labelledby="modal-3sec-title">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <div class="modal-title-group">
+          <span class="modal-icon-badge">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </span>
+          <h3 id="modal-3sec-title">3-Second Purchase Check</h3>
+        </div>
+        <button type="button" class="btn-close" data-close="modal-three-sec" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-content">
+        <div class="sim-fields">
+          <div class="field-group">
+            <label for="sim-purchase-amount">Amount (RM)</label>
+            <input type="number" id="sim-purchase-amount" class="input-clean input-lg" step="1" min="0" value="50.00" placeholder="0.00" />
+          </div>
+          <div class="field-group">
+            <label for="sim-purchase-cat">Category</label>
+            <select id="sim-purchase-cat" class="input-clean input-lg">
+              <option value="Other items">Other items</option>
+              <option value="Food">Food</option>
+              <option value="Cloth">Cloth</option>
+              <option value="Grab">Grab</option>
+              <option value="Savings">Savings</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sim-card" id="sim-result-banner">
+          <div class="sim-status" id="sim-verdict-title">Safe to proceed</div>
+          <div class="sim-grid">
+            <div>
+              <span>New Balance</span>
+              <strong id="sim-new-balance">RM 2,099.50</strong>
+            </div>
+            <div>
+              <span>Capacity Left</span>
+              <strong id="sim-new-capacity">84.0%</strong>
+            </div>
+            <div>
+              <span>Category Left</span>
+              <strong id="sim-cat-remaining">RM 155.00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-three-sec">Cancel</button>
+        <button type="button" id="btn-sim-log-now" class="btn btn-primary">Use This Expense</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Adjust Category Budgets -->
+  <div class="modal-backdrop hidden" id="modal-budgets" role="dialog" aria-modal="true" aria-labelledby="modal-budgets-title">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <h3 id="modal-budgets-title">Adjust Monthly Allocations</h3>
+        <button type="button" class="btn-close" data-close="modal-budgets" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-content">
+        <form id="form-edit-budgets" class="alloc-list">
+          <!-- Populated by app.js -->
+        </form>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-budgets">Cancel</button>
+        <button type="button" id="btn-save-budgets" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: Key In Expense -->
+  <div class="modal-backdrop hidden" id="modal-key-in-expense" role="dialog" aria-modal="true" aria-labelledby="modal-key-in-title">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <div class="modal-title-group">
+          <span class="modal-icon-badge" id="key-in-icon-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </span>
+          <div>
+            <h3 id="modal-key-in-title">Key In Expense</h3>
+            <p class="modal-sub" id="modal-key-in-sub">Record an expense for this category</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-close="modal-key-in-expense" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <form id="form-key-in-expense" class="key-in-form">
+          <!-- Category Chips -->
+          <div class="field-group">
+            <label class="field-label">Category</label>
+            <div class="key-in-cat-chips" id="key-in-cat-chips">
+              <!-- Populated dynamically by app.js -->
+            </div>
+            <input type="hidden" id="key-in-cat-input" value="Food" />
+          </div>
+
+          <!-- Hero Amount Field -->
+          <div class="field-group">
+            <label class="field-label" for="key-in-amount">Amount Spent</label>
+            <div class="amount-hero-wrapper">
+              <span class="amount-hero-cur">RM</span>
+              <input type="number" id="key-in-amount" class="input-clean amount-hero-input" step="0.01" min="0.01" placeholder="0.00" required />
+            </div>
+          </div>
+
+          <!-- Description Field -->
+          <div class="field-group">
+            <label class="field-label" for="key-in-desc">Description</label>
+            <input type="text" id="key-in-desc" class="input-clean input-lg" placeholder="What did you spend on? (e.g. Lunch, Groceries)" required />
+          </div>
+
+          <!-- 2-Column Row: Payment Method & Date -->
+          <div class="field-row-2col">
+            <div class="field-group">
+              <label class="field-label" for="key-in-method">Payment Method</label>
+              <select id="key-in-method" class="input-clean input-lg">
+                <option value="DuitNow QR">DuitNow QR</option>
+                <option value="GrabPay">GrabPay</option>
+                <option value="Card">Card</option>
+                <option value="Cash">Cash</option>
+                <option value="Online Transfer">Online Transfer</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="key-in-date">Date</label>
+              <input type="date" id="key-in-date" class="input-clean input-lg" value="2026-10-31" />
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-key-in-expense">Cancel</button>
+        <button type="submit" form="form-key-in-expense" id="btn-save-key-in-expense" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Save Expense</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Savings Platform -->
+  <div class="modal-backdrop hidden" id="modal-add-platform" role="dialog" aria-modal="true" aria-labelledby="modal-add-platform-title">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <div class="modal-title-group">
+          <span class="modal-icon-badge" style="background: var(--cat-savings-tint, #ECFDF5); color: var(--cat-savings, #059669);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 20h10"></path>
+              <path d="M10 20c5.5-2.5.8-6.4 3-13"></path>
+              <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"></path>
+              <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"></path>
+            </svg>
+          </span>
+          <div>
+            <h3 id="modal-add-platform-title">Add Savings Platform</h3>
+            <p class="modal-sub">Track a new stash (e.g. GXBank, TnG GO+, MAE, ASB)</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-close="modal-add-platform" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <form id="form-add-platform" class="modal-body-form">
+          <div class="field-group">
+            <label class="field-label" for="platform-input-name">Platform Name</label>
+            <input type="text" id="platform-input-name" class="input-clean input-lg" placeholder="e.g. GXBank, TnG GO+, MAE, KDI" required />
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="platform-input-tag">Description / Yield (Optional)</label>
+            <input type="text" id="platform-input-tag" class="input-clean input-lg" placeholder="e.g. High-Yield Digital Bank • 3.0% p.a." />
+          </div>
+
+          <div class="field-row-2col">
+            <div class="field-group">
+              <label class="field-label" for="platform-input-initial">Initial Balance</label>
+              <div class="amount-field input-lg">
+                <span class="currency-prefix">RM</span>
+                <input type="number" id="platform-input-initial" class="input-clean input-num" step="0.01" min="0" placeholder="0.00" value="0.00" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="platform-input-target">Target Goal</label>
+              <div class="amount-field input-lg">
+                <span class="currency-prefix">RM</span>
+                <input type="number" id="platform-input-target" class="input-clean input-num" step="50" min="0" placeholder="1000.00" value="1000.00" />
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Platform Theme Accent</label>
+            <div class="platform-color-picker">
+              <label class="color-opt"><input type="radio" name="platform-color" value="#2563EB" checked /><span class="color-swatch" style="background: #2563EB;"></span><span>Blue</span></label>
+              <label class="color-opt"><input type="radio" name="platform-color" value="#EE4D2D" /><span class="color-swatch" style="background: #EE4D2D;"></span><span>Shopee Orange</span></label>
+              <label class="color-opt"><input type="radio" name="platform-color" value="#10B981" /><span class="color-swatch" style="background: #10B981;"></span><span>Emerald</span></label>
+              <label class="color-opt"><input type="radio" name="platform-color" value="#8B5CF6" /><span class="color-swatch" style="background: #8B5CF6;"></span><span>Purple</span></label>
+              <label class="color-opt"><input type="radio" name="platform-color" value="#EC4899" /><span class="color-swatch" style="background: #EC4899;"></span><span>Pink</span></label>
+              <label class="color-opt"><input type="radio" name="platform-color" value="#F59E0B" /><span class="color-swatch" style="background: #F59E0B;"></span><span>Amber</span></label>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-add-platform">Cancel</button>
+        <button type="submit" form="form-add-platform" id="btn-save-new-platform" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Add Platform</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Key In Savings -->
+  <div class="modal-backdrop hidden" id="modal-key-in-savings" role="dialog" aria-modal="true" aria-labelledby="modal-key-in-savings-title">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <div class="modal-title-group">
+          <span class="modal-icon-badge" style="background: var(--cat-savings-tint, #ECFDF5); color: var(--cat-savings, #059669);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 20h10"></path>
+              <path d="M10 20c5.5-2.5.8-6.4 3-13"></path>
+              <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"></path>
+              <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"></path>
+            </svg>
+          </span>
+          <div>
+            <h3 id="modal-key-in-savings-title">Key In Savings</h3>
+            <p class="modal-sub" id="modal-key-in-savings-sub">Record money saved or deposited</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-close="modal-key-in-savings" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <form id="form-key-in-savings" class="modal-body-form">
+          <input type="hidden" id="key-in-savings-platform-id" value="versa" />
+
+          <!-- Platform selection chips -->
+          <div class="field-group">
+            <label class="field-label">Target Platform</label>
+            <div class="key-in-chips-container" id="key-in-savings-platform-chips">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Action Type Toggle: Deposit vs Withdraw -->
+          <div class="field-group">
+            <label class="field-label">Action</label>
+            <div class="savings-action-toggle">
+              <button type="button" class="action-toggle-btn active" data-action="deposit">+ Deposit (Save)</button>
+              <button type="button" class="action-toggle-btn" data-action="withdraw">- Withdraw</button>
+            </div>
+            <input type="hidden" id="key-in-savings-action-type" value="deposit" />
+          </div>
+
+          <!-- Amount -->
+          <div class="field-group">
+            <label class="field-label" for="key-in-savings-amount">Amount</label>
+            <div class="amount-field input-lg">
+              <span class="currency-prefix">RM</span>
+              <input type="number" id="key-in-savings-amount" class="input-clean input-num" step="0.01" min="0.01" placeholder="0.00" required />
+            </div>
+          </div>
+
+          <!-- 2-Column: Note & Date -->
+          <div class="field-row-2col">
+            <div class="field-group">
+              <label class="field-label" for="key-in-savings-note">Note (Optional)</label>
+              <input type="text" id="key-in-savings-note" class="input-clean input-lg" placeholder="e.g. Monthly transfer, stash..." />
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="key-in-savings-date">Date</label>
+              <input type="date" id="key-in-savings-date" class="input-clean input-lg" value="2026-10-31" />
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-key-in-savings">Cancel</button>
+        <button type="submit" form="form-key-in-savings" id="btn-save-key-in-savings" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Save Deposit</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
