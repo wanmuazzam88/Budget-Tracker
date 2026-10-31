@@ -2006,6 +2006,208 @@ body {
   justify-content: flex-end;
 }
 
+/* Past Monthly Performance in Settings */
+.settings-row-group {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-row-group:hover {
+  border-color: var(--border-strong);
+}
+
+.settings-row-group.is-open {
+  border-color: var(--blue-border);
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+}
+
+.settings-row-clickable {
+  cursor: pointer;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.settings-row-clickable:hover {
+  background: var(--bg-surface) !important;
+}
+
+.perf-toggle-btn {
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.perf-toggle-btn .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+}
+
+.perf-toggle-btn .chevron-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-row-group.is-open .perf-toggle-btn .chevron-icon {
+  transform: rotate(180deg);
+}
+
+.past-perf-drawer {
+  padding: 12px 14px 14px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: drawerSlide 0.22s ease-out;
+}
+
+.past-perf-drawer.hidden {
+  display: none !important;
+}
+
+@keyframes drawerSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.perf-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 2px 6px;
+}
+
+.perf-drawer-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.perf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.perf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-page);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  gap: 10px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.perf-row:hover {
+  background: var(--bg-subtle);
+  border-color: var(--border-strong);
+}
+
+.perf-row-current {
+  border-color: var(--blue-border);
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.06) 0%, var(--bg-page) 100%);
+}
+
+.perf-month-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.perf-month-text {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.perf-month-short {
+  display: none;
+}
+
+.perf-active-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--blue-tint);
+  color: var(--blue);
+  border: 1px solid var(--blue-border);
+}
+
+.perf-figures-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.perf-stat-saved {
+  color: var(--cat-savings, #059669);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.perf-stat-spent {
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.perf-dim {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.perf-divider {
+  color: var(--border-strong);
+  font-size: 0.72rem;
+  user-select: none;
+}
+
+@media (max-width: 440px) {
+  .perf-month-full {
+    display: none !important;
+  }
+  .perf-month-short {
+    display: inline !important;
+  }
+}
+
 .settings-options-list {
   display: flex;
   flex-direction: column;

@@ -214,6 +214,41 @@
           </div>
 
           <div class="settings-options-list">
+            <!-- Option 1: Past Monthly Performance (Click to Reveal) -->
+            <div class="settings-row-group">
+              <div class="settings-row settings-row-clickable" id="btn-toggle-past-perf" role="button" tabindex="0" aria-expanded="false" title="Click to view past monthly performance">
+                <div class="settings-row-text">
+                  <span class="settings-row-title">Past Monthly Performance</span>
+                  <span class="settings-row-desc">Overview of money saved and spent for each month</span>
+                </div>
+                <div class="perf-toggle-btn">
+                  <span class="btn btn-ghost btn-sm" id="perf-toggle-label-wrap">
+                    <span id="perf-toggle-label">View</span>
+                    <svg class="chevron-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Collapsible Monthly Drawer (Hidden by default) -->
+              <div class="past-perf-drawer hidden" id="past-perf-drawer">
+                <div class="perf-drawer-header">
+                  <span class="perf-drawer-title">Monthly Breakdown</span>
+                  <button type="button" class="cat-add-btn" id="btn-open-add-past-perf" title="Log past month" aria-label="Log past month">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="perf-list" id="settings-past-perf-list">
+                  <!-- Rendered by app.js -->
+                </div>
+              </div>
+            </div>
+
             <div class="settings-row">
               <div class="settings-row-text">
                 <span class="settings-row-title">Active Cycle</span>
@@ -639,6 +674,70 @@
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           <span>Save Deposit</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Past Month Performance -->
+  <div class="modal-backdrop hidden" id="modal-add-past-perf" role="dialog" aria-modal="true" aria-labelledby="modal-add-past-perf-title">
+    <div class="modal-dialog">
+      <div class="modal-top">
+        <div class="modal-title-group">
+          <span class="modal-icon-badge" style="background: var(--blue-tint); color: var(--blue);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </span>
+          <div>
+            <h3 id="modal-add-past-perf-title">Add Past Performance</h3>
+            <p class="modal-sub">Record a past month's saved and spent summary</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-close="modal-add-past-perf" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <form id="form-add-past-perf" class="modal-body-form">
+          <div class="field-group">
+            <label class="field-label" for="perf-input-month">Month</label>
+            <input type="month" id="perf-input-month" class="input-clean input-lg" value="2026-06" required />
+          </div>
+
+          <div class="field-row-2col">
+            <div class="field-group">
+              <label class="field-label" for="perf-input-saved">Total Saved</label>
+              <div class="amount-field input-lg">
+                <span class="currency-prefix">RM</span>
+                <input type="number" id="perf-input-saved" class="input-clean input-num" step="0.01" min="0" placeholder="0.00" required />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="perf-input-spent">Total Spent</label>
+              <div class="amount-field input-lg">
+                <span class="currency-prefix">RM</span>
+                <input type="number" id="perf-input-spent" class="input-clean input-num" step="0.01" min="0" placeholder="0.00" required />
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close="modal-add-past-perf">Cancel</button>
+        <button type="submit" form="form-add-past-perf" id="btn-save-past-perf" class="btn btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Save Month</span>
         </button>
       </div>
     </div>

@@ -418,6 +418,7 @@ function renderApp() {
 
   // 6. Settings Budget Allocations & Past Performance
   renderSettingsBudgets();
+  renderSettingsPerformance(m);
 
   // 7. Update Simulator if open
   updateSimulatorPreview(m);
@@ -497,6 +498,128 @@ function renderSettingsBudgets() {
           <div class="amount-field settings-alloc-input-wrap">
             <span class="currency-prefix">RM</span>
             <input type="number" data-settings-cat-idx="${idx}" class="input-clean input-num" step="10" min="0" value="${Number(c.allocated).toFixed(2)}" aria-label="${escapeHtml(c.label)} budget allocation" />
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function formatMonthYearLabel(ym) {
+  if (!ym) return '';
+  const parts = ym.split('-');
+  if (parts.length < 2) return ym;
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  const date = new Date(y, m - 1, 1);
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+}
+
+function formatShortMonthLabel(ym) {
+  if (!ym) return '';
+  const parts = ym.split('-');
+  if (parts.length < 2) return ym;
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  const date = new Date(y, m - 1, 1);
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
+function getMonthlyPerformanceList(m) {
+  const map = {};
+
+  // 1. Seed with past archived months
+  const past = Array.isArray(appState.pastPerformance) ? appState.pastPerformance : [];
+  past.forEach((p) => {
+    if (!p.month) return;
+    map[p.month] = {
+      month: p.month,
+      label: p.label || formatMonthYearLabel(p.month),
+      saved: Number(p.saved || 0),
+      spent: Number(p.spent || 0),
+      isCurrent: false
+    };
+  });
+
+  // 2. Aggregate live transactions
+  const txs = Array.isArray(appState.transactions) ? appState.transactions : [];
+  txs.forEach((tx) => {
+    const ym = (tx.date || '').slice(0, 7);
+    if (!ym || ym.length < 7) return;
+    if (!map[ym]) {
+      map[ym] = {
+        month: ym,
+        label: formatMonthYearLabel(ym),
+        saved: 0,
+        spent: 0,
+        isCurrent: false
+      };
+    }
+    map[ym].spent += Number(tx.amount || 0);
+  });
+
+  // 3. Aggregate live savings records
+  const savs = Array.isArray(appState.savingsRecords) ? appState.savingsRecords : [];
+  savs.forEach((r) => {
+    const ym = (r.date || '').slice(0, 7);
+    if (!ym || ym.length < 7) return;
+    if (!map[ym]) {
+      map[ym] = {
+        month: ym,
+        label: formatMonthYearLabel(ym),
+        saved: 0,
+        spent: 0,
+        isCurrent: false
+      };
+    }
+    const amt = Number(r.amount || 0);
+    if (r.type === 'withdraw') {
+      map[ym].saved = Math.max(0, map[ym].saved - amt);
+    } else {
+      map[ym].saved += amt;
+    }
+  });
+
+  // 4. Mark current active month
+  const keys = Object.keys(map).sort().reverse();
+  const currentKey = keys.find((k) => k === '2026-10') || keys[0];
+  if (currentKey && map[currentKey]) {
+    map[currentKey].isCurrent = true;
+  }
+
+  return keys.map((k) => map[k]);
+}
+
+function renderSettingsPerformance(m) {
+  const container = document.getElementById('settings-past-perf-list');
+  if (!container) return;
+
+  const monthList = getMonthlyPerformanceList(m);
+  if (!monthList || monthList.length === 0) {
+    container.innerHTML = `<div class="sav-empty-state">No monthly records available yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = monthList
+    .map((item) => {
+      const isCur = Boolean(item.isCurrent);
+      return `
+        <div class="perf-row ${isCur ? 'perf-row-current' : ''}">
+          <div class="perf-month-group">
+            <span class="perf-month-text perf-month-full">${escapeHtml(item.label)}</span>
+            <span class="perf-month-text perf-month-short">${escapeHtml(formatShortMonthLabel(item.month))}</span>
+            ${isCur ? '<span class="perf-active-badge">Current</span>' : ''}
+          </div>
+          <div class="perf-figures-group">
+            <span class="perf-stat-saved" title="Money saved in ${escapeHtml(item.label)}">
+              <span class="perf-dim">Saved:</span>
+              <strong>${formatRM(item.saved)}</strong>
+            </span>
+            <span class="perf-divider" aria-hidden="true">•</span>
+            <span class="perf-stat-spent" title="Money spent in ${escapeHtml(item.label)}">
+              <span class="perf-dim">Spent:</span>
+              <strong>${formatRM(item.spent)}</strong>
+            </span>
           </div>
         </div>
       `;
