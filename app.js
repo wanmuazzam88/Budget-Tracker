@@ -605,21 +605,16 @@ function renderSettingsPerformance(m) {
       const isCur = Boolean(item.isCurrent);
       return `
         <div class="perf-row ${isCur ? 'perf-row-current' : ''}">
-          <div class="perf-month-group">
+          <div class="perf-col-month">
             <span class="perf-month-text perf-month-full">${escapeHtml(item.label)}</span>
             <span class="perf-month-text perf-month-short">${escapeHtml(formatShortMonthLabel(item.month))}</span>
-            ${isCur ? '<span class="perf-active-badge">Current</span>' : ''}
+            ${isCur ? '<span class="perf-active-dot" title="Active Cycle" aria-label="Active cycle"></span>' : ''}
           </div>
-          <div class="perf-figures-group">
-            <span class="perf-stat-saved" title="Money saved in ${escapeHtml(item.label)}">
-              <span class="perf-dim">Saved:</span>
-              <strong>${formatRM(item.saved)}</strong>
-            </span>
-            <span class="perf-divider" aria-hidden="true">•</span>
-            <span class="perf-stat-spent" title="Money spent in ${escapeHtml(item.label)}">
-              <span class="perf-dim">Spent:</span>
-              <strong>${formatRM(item.spent)}</strong>
-            </span>
+          <div class="perf-col-saved">
+            <span class="perf-val-saved">${formatRM(item.saved)}</span>
+          </div>
+          <div class="perf-col-spent">
+            <span class="perf-val-spent">${formatRM(item.spent)}</span>
           </div>
         </div>
       `;

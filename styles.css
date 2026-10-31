@@ -2100,6 +2100,32 @@ body {
   color: var(--text-muted);
 }
 
+.perf-table-header {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1fr;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.perf-th-month {
+  text-align: left;
+}
+
+.perf-th-saved {
+  text-align: right;
+  color: var(--cat-savings, #059669);
+}
+
+.perf-th-spent {
+  text-align: right;
+  color: var(--text-muted);
+}
+
 .perf-list {
   display: flex;
   flex-direction: column;
@@ -2107,14 +2133,13 @@ body {
 }
 
 .perf-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1fr;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
+  padding: 9px 12px;
   background: var(--bg-page);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  gap: 10px;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
@@ -2129,16 +2154,16 @@ body {
   background: linear-gradient(90deg, rgba(37, 99, 235, 0.06) 0%, var(--bg-page) 100%);
 }
 
-.perf-month-group {
+.perf-col-month {
   display: flex;
   align-items: center;
   gap: 6px;
+  text-align: left;
   min-width: 0;
-  flex-shrink: 0;
 }
 
 .perf-month-text {
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
@@ -2148,63 +2173,81 @@ body {
   display: none;
 }
 
-.perf-active-badge {
-  font-size: 0.62rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 2px 6px;
-  border-radius: var(--radius-pill);
-  background: var(--blue-tint);
-  color: var(--blue);
-  border: 1px solid var(--blue-border);
+.perf-active-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
 }
 
-.perf-figures-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+.perf-col-saved {
+  text-align: right;
   font-family: var(--font-mono);
   font-size: 0.82rem;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.perf-stat-saved {
+  font-weight: 700;
   color: var(--cat-savings, #059669);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  white-space: nowrap;
 }
 
-.perf-stat-spent {
+.perf-col-spent {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
   color: var(--text-primary);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  white-space: nowrap;
 }
 
-.perf-dim {
-  font-family: var(--font-sans);
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
+@media (max-width: 640px) {
+  .past-perf-drawer {
+    padding: 10px 8px 12px;
+  }
 
-.perf-divider {
-  color: var(--border-strong);
-  font-size: 0.72rem;
-  user-select: none;
-}
+  .perf-table-header {
+    padding: 2px 8px 4px;
+    font-size: 0.65rem;
+  }
 
-@media (max-width: 440px) {
+  .perf-row {
+    padding: 8px 8px;
+  }
+
   .perf-month-full {
     display: none !important;
   }
+
   .perf-month-short {
     display: inline !important;
+  }
+
+  .perf-month-text,
+  .perf-col-saved,
+  .perf-col-spent {
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .past-perf-drawer {
+    padding: 8px 6px 10px;
+  }
+
+  .perf-table-header {
+    padding: 2px 6px 3px;
+    font-size: 0.62rem;
+  }
+
+  .perf-row {
+    padding: 7px 6px;
+  }
+
+  .perf-month-text,
+  .perf-col-saved,
+  .perf-col-spent {
+    font-size: 0.74rem;
   }
 }
 
