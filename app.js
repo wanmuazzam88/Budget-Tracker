@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'personal_money_tracker_oct_nov_2026_v4';
+const STORAGE_KEY = 'personal_money_tracker_live_v1';
 
 const DEFAULT_STATE = {
   cycle: 'October 2026 — November 2026',
@@ -10,48 +10,7 @@ const DEFAULT_STATE = {
     { id: 'Grab', label: 'Grab', allocated: 350.00 },
     { id: 'Other items', label: 'Other items', allocated: 250.00 }
   ],
-  transactions: [
-    {
-      id: 'tx-1',
-      date: '2026-10-31',
-      category: 'Other items',
-      description: 'Grip Tape & Recovery Balm',
-      method: 'GrabPay',
-      amount: 45.00
-    },
-    {
-      id: 'tx-2',
-      date: '2026-10-30',
-      category: 'Grab',
-      description: 'Ride to Sports Arena',
-      method: 'GrabPay',
-      amount: 24.00
-    },
-    {
-      id: 'tx-3',
-      date: '2026-10-29',
-      category: 'Cloth',
-      description: 'Dry-fit Competition Jersey',
-      method: 'Card',
-      amount: 89.00
-    },
-    {
-      id: 'tx-4',
-      date: '2026-10-29',
-      category: 'Food',
-      description: 'Daily Lunch & Iced Coffee',
-      method: 'Cash',
-      amount: 32.50
-    },
-    {
-      id: 'tx-5',
-      date: '2026-10-28',
-      category: 'Savings',
-      description: 'Versa Cash Monthly Transfer',
-      method: 'Online Transfer',
-      amount: 350.00
-    }
-  ],
+  transactions: [],
   savingsPlatforms: [
     {
       id: 'versa',
@@ -59,7 +18,7 @@ const DEFAULT_STATE = {
       tag: 'Cash Management • 3.7% p.a.',
       color: '#2563EB',
       tint: '#EFF6FF',
-      balance: 1450.00,
+      balance: 0.00,
       target: 2000.00
     },
     {
@@ -68,56 +27,12 @@ const DEFAULT_STATE = {
       tag: 'ShopeePay / MariBank High-Yield',
       color: '#EE4D2D',
       tint: '#FFF1EE',
-      balance: 620.00,
+      balance: 0.00,
       target: 1000.00
     }
   ],
-  savingsRecords: [
-    {
-      id: 'sav-1',
-      date: '2026-10-31',
-      platformId: 'versa',
-      type: 'deposit',
-      amount: 350.00,
-      note: 'Payday automated savings'
-    },
-    {
-      id: 'sav-2',
-      date: '2026-10-28',
-      platformId: 'shopee',
-      type: 'deposit',
-      amount: 120.00,
-      note: 'MariBank cash stash'
-    },
-    {
-      id: 'sav-3',
-      date: '2026-10-20',
-      platformId: 'versa',
-      type: 'deposit',
-      amount: 500.00,
-      note: 'Versa Cash deposit'
-    }
-  ],
-  pastPerformance: [
-    {
-      month: '2026-09',
-      label: 'September 2026',
-      saved: 650.00,
-      spent: 1820.00
-    },
-    {
-      month: '2026-08',
-      label: 'August 2026',
-      saved: 800.00,
-      spent: 1650.00
-    },
-    {
-      month: '2026-07',
-      label: 'July 2026',
-      saved: 500.00,
-      spent: 1940.00
-    }
-  ]
+  savingsRecords: [],
+  pastPerformance: []
 };
 
 const CATEGORY_META = {
@@ -250,7 +165,7 @@ function cloneDefaultState() {
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('personal_money_tracker_oct_nov_2026_v3');
+    const raw = localStorage.getItem(STORAGE_KEY);
     let state = raw ? JSON.parse(raw) : cloneDefaultState();
     if (!state || !Array.isArray(state.categories) || !Array.isArray(state.transactions)) {
       state = cloneDefaultState();
@@ -260,28 +175,31 @@ function loadState() {
       state.savingsPlatforms = cloneDefaultState().savingsPlatforms;
     }
     if (!Array.isArray(state.savingsRecords)) {
-      state.savingsRecords = cloneDefaultState().savingsRecords;
+      state.savingsRecords = [];
     }
     // Ensure pastPerformance exists
     if (!Array.isArray(state.pastPerformance)) {
-      state.pastPerformance = cloneDefaultState().pastPerformance;
+      state.pastPerformance = [];
     }
-    // Migrate Event / Competition category to Savings
-    const eventCatIdx = state.categories.findIndex((c) => c.id === 'Event / Competition');
-    if (eventCatIdx !== -1) {
-      state.categories.splice(eventCatIdx, 1, { id: 'Savings', label: 'Savings', allocated: 800.00 });
-    } else if (!state.categories.find((c) => c.id === 'Savings')) {
-      state.categories.unshift({ id: 'Savings', label: 'Savings', allocated: 800.00 });
+    // Strip out legacy demo transactions
+    state.transactions = state.transactions.filter(
+      (tx) => !['tx-1', 'tx-2', 'tx-3', 'tx-4', 'tx-5'].includes(tx.id)
+    );
+    // Strip out legacy demo savings records
+    state.savingsRecords = state.savingsRecords.filter(
+      (r) => !['sav-1', 'sav-2', 'sav-3'].includes(r.id)
+    );
+    // Strip out legacy mock past performance
+    state.pastPerformance = state.pastPerformance.filter(
+      (p) => !['2026-09', '2026-08', '2026-07'].includes(p.month)
+    );
+    // If platforms still hold legacy mock numbers, reset balance to 0
+    if (Array.isArray(state.savingsPlatforms)) {
+      state.savingsPlatforms.forEach((p) => {
+        if (p.id === 'versa' && p.balance === 1450) p.balance = 0;
+        if (p.id === 'shopee' && p.balance === 620) p.balance = 0;
+      });
     }
-    // Update old event transactions if any
-    state.transactions.forEach((tx) => {
-      if (tx.category === 'Event / Competition') {
-        tx.category = 'Savings';
-        if (tx.description.includes('National Open')) {
-          tx.description = 'Versa Cash Monthly Transfer';
-        }
-      }
-    });
     return state;
   } catch {
     return cloneDefaultState();
@@ -1046,7 +964,8 @@ function renderSavingsTracker(m) {
 
       const balance = Number(plat.balance || 0);
       const target = Number(plat.target || 0);
-      const pct = target > 0 ? Math.min(100, Math.round((balance / target) * 100)) : 100;
+      const hasTarget = target > 0;
+      const pct = hasTarget ? Math.min(100, Math.round((balance / target) * 100)) : 0;
 
       card.innerHTML = `
         <div class="platform-card-top">
@@ -1077,10 +996,10 @@ function renderSavingsTracker(m) {
 
         <div class="platform-progress-wrap">
           <div class="platform-progress-track">
-            <div class="platform-progress-fill" style="width: ${pct}%; background: ${plat.color || '#2563EB'};"></div>
+            <div class="platform-progress-fill" style="width: ${hasTarget ? pct : 0}%; background: ${plat.color || '#2563EB'};"></div>
           </div>
           <div class="platform-progress-text">
-            <span>${pct}% of ${formatRM(target)} goal</span>
+            <span>${hasTarget ? `${pct}% of ${formatRM(target)} goal` : 'No goal set'}</span>
           </div>
         </div>
       `;
@@ -1695,11 +1614,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsResetBtn = document.getElementById('btn-settings-reset-data');
   if (settingsResetBtn) {
     settingsResetBtn.addEventListener('click', () => {
+      if (!confirm('Are you sure you want to clear all logged expenses and reset to a clean state?')) {
+        return;
+      }
       appState = cloneDefaultState();
       selectedCategoryFilter = 'ALL';
       saveState();
       renderApp();
-      showToast('Reset to default data');
+      showToast('All data cleared. Ready for your expenses!');
     });
   }
 
