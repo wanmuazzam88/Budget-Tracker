@@ -1630,29 +1630,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Shortcut from Overview Hero "This Month Budget" to Settings
-  const heroBudgetBtn = document.getElementById('hero-stat-budget');
-  if (heroBudgetBtn) {
-    heroBudgetBtn.addEventListener('click', () => {
-      switchTab('view-settings');
-      setTimeout(() => {
-        const firstInp = document.querySelector('#form-settings-budgets input');
-        if (firstInp) firstInp.focus();
-      }, 150);
-    });
-  }
 
-  // Shortcut from Categories "Set Budget" button to Settings
-  const gotoBudgetBtn = document.getElementById('btn-goto-set-budgets');
-  if (gotoBudgetBtn) {
-    gotoBudgetBtn.addEventListener('click', () => {
-      switchTab('view-settings');
-      setTimeout(() => {
-        const firstInp = document.querySelector('#form-settings-budgets input');
-        if (firstInp) firstInp.focus();
-      }, 150);
-    });
-  }
 
   // Settings: Toggle Privacy Masking
   const settingsTogglePrivacyBtn = document.getElementById('btn-settings-toggle-privacy');

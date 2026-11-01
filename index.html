@@ -51,7 +51,7 @@
             </div>
 
             <div class="hero-stats-row">
-              <div class="stat-item" id="hero-stat-budget" role="button" tabindex="0" title="Click to key in budget allocations">
+              <div class="stat-item">
                 <span class="stat-label">This Month Budget</span>
                 <span class="stat-value" id="hero-budget-amount">RM 0.00</span>
               </div>
@@ -133,13 +133,6 @@
               </div>
               <p class="recent-sub cat-subtitle">Click any category below to key in an expense</p>
             </div>
-            <button type="button" class="btn btn-ghost btn-sm" id="btn-goto-set-budgets" title="Set or adjust category budgets">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-              </svg>
-              <span>Set Budget</span>
-            </button>
           </div>
 
           <div class="category-list" id="category-list">
@@ -203,10 +196,10 @@
           <div class="card-header">
             <div>
               <h2>Budget Allocations</h2>
-              <p class="recent-sub">Key in monthly spending limits for each category</p>
+              <p class="recent-sub">Enter this month's budget or add on to category budgets</p>
             </div>
             <div class="settings-budget-total-pill">
-              <span class="settings-budget-total-label">Total:</span>
+              <span class="settings-budget-total-label">This Month Budget:</span>
               <strong id="settings-budget-total-val" class="text-blue">RM 0.00</strong>
             </div>
           </div>
@@ -217,7 +210,7 @@
 
           <div class="settings-actions">
             <button type="button" id="btn-save-settings-budgets" class="btn btn-primary">
-              Save Allocations
+              Save Budget
             </button>
           </div>
         </section>
