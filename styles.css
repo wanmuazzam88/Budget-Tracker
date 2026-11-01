@@ -15,11 +15,11 @@
   --cat-savings-border: rgba(5, 150, 105, 0.22);
   --cat-savings-hover: #047857;
 
-  /* Aliases for backwards compatibility */
-  --cat-event: var(--cat-savings);
-  --cat-event-tint: var(--cat-savings-tint);
-  --cat-event-border: var(--cat-savings-border);
-  --cat-event-hover: var(--cat-savings-hover);
+  /* Event Category Colors */
+  --cat-event: #0284C7;
+  --cat-event-tint: #F0F9FF;
+  --cat-event-border: rgba(2, 132, 199, 0.22);
+  --cat-event-hover: #0369A1;
 
   --cat-food: #F59E0B;
   --cat-food-tint: #FFFBEB;
@@ -272,23 +272,40 @@ body {
 }
 
 /* Category Specific Color Rules */
-/* 1. Savings - Emerald Green */
-.cat-box-savings, .tx-box-savings, .cat-box-event, .tx-box-event {
+/* 1. Event Category - Sky Blue */
+.cat-box-event, .tx-box-event {
+  background: var(--cat-event-tint);
+  color: var(--cat-event);
+  border: 1px solid var(--cat-event-border);
+}
+.cat-fill-event { background: var(--cat-event); }
+.cat-text-event { color: var(--cat-event); }
+.cat-item-event:hover { background: rgba(2, 132, 199, 0.04); }
+.cat-item-event.active-filter {
+  background: var(--cat-event-tint);
+  border-color: var(--cat-event-border);
+}
+.cat-item-event:hover .cat-box-event,
+.cat-item-event.active-filter .cat-box-event {
+  background: var(--cat-event);
+  color: #FFFFFF;
+}
+
+/* 1b. Savings Legacy/Platform - Emerald Green */
+.cat-box-savings, .tx-box-savings {
   background: var(--cat-savings-tint);
   color: var(--cat-savings);
   border: 1px solid var(--cat-savings-border);
 }
-.cat-fill-savings, .cat-fill-event { background: var(--cat-savings); }
-.cat-text-savings, .cat-text-event { color: var(--cat-savings); }
-.cat-item-savings:hover, .cat-item-event:hover { background: rgba(5, 150, 105, 0.04); }
-.cat-item-savings.active-filter, .cat-item-event.active-filter {
+.cat-fill-savings { background: var(--cat-savings); }
+.cat-text-savings { color: var(--cat-savings); }
+.cat-item-savings:hover { background: rgba(5, 150, 105, 0.04); }
+.cat-item-savings.active-filter {
   background: var(--cat-savings-tint);
   border-color: var(--cat-savings-border);
 }
 .cat-item-savings:hover .cat-box-savings,
-.cat-item-savings.active-filter .cat-box-savings,
-.cat-item-event:hover .cat-box-event,
-.cat-item-event.active-filter .cat-box-event {
+.cat-item-savings.active-filter .cat-box-savings {
   background: var(--cat-savings);
   color: #FFFFFF;
 }
@@ -1832,9 +1849,9 @@ body {
 }
 
 .key-in-chip.active.chip-event {
-  background: rgba(37, 99, 235, 0.12);
-  border-color: var(--blue);
-  color: var(--blue);
+  background: var(--cat-event-tint);
+  border-color: var(--cat-event);
+  color: var(--cat-event);
 }
 
 .key-in-chip.active.chip-food {

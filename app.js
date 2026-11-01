@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'personal_money_tracker_live_v4';
+const STORAGE_KEY = 'personal_money_tracker_live_v5';
 
 const DEFAULT_STATE = {
   cycle: 'October 2026 — November 2026',
@@ -8,6 +8,7 @@ const DEFAULT_STATE = {
     { id: 'Food', label: 'Food', allocated: 0.00 },
     { id: 'Cloth', label: 'Cloth', allocated: 0.00 },
     { id: 'Grab', label: 'Grab', allocated: 0.00 },
+    { id: 'Event', label: 'Event', allocated: 0.00 },
     { id: 'Other items', label: 'Other items', allocated: 0.00 }
   ],
   transactions: [],
@@ -36,13 +37,6 @@ const DEFAULT_STATE = {
 };
 
 const CATEGORY_META = {
-  'Savings': {
-    key: 'savings',
-    color: '#059669',
-    tint: '#ECFDF5',
-    border: 'rgba(5, 150, 105, 0.22)',
-    text: '#047857'
-  },
   'Food': {
     key: 'food',
     color: '#F59E0B',
@@ -64,6 +58,20 @@ const CATEGORY_META = {
     border: 'rgba(16, 185, 129, 0.22)',
     text: '#047857'
   },
+  'Event': {
+    key: 'event',
+    color: '#0284C7',
+    tint: '#F0F9FF',
+    border: 'rgba(2, 132, 199, 0.22)',
+    text: '#0369A1'
+  },
+  'Event / Competition': {
+    key: 'event',
+    color: '#0284C7',
+    tint: '#F0F9FF',
+    border: 'rgba(2, 132, 199, 0.22)',
+    text: '#0369A1'
+  },
   'Other items': {
     key: 'other',
     color: '#EC4899',
@@ -71,7 +79,7 @@ const CATEGORY_META = {
     border: 'rgba(236, 72, 153, 0.22)',
     text: '#BE185D'
   },
-  'Event / Competition': {
+  'Savings': {
     key: 'savings',
     color: '#059669',
     tint: '#ECFDF5',
@@ -113,13 +121,14 @@ function getPlatformSvg(platformId, size = 18) {
 function getCategorySvg(categoryId, size = 16) {
   const attrs = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"`;
   switch (categoryId) {
-    case 'Savings':
+    case 'Event':
     case 'Event / Competition':
       return `<svg ${attrs}>
-        <path d="M7 20h10"></path>
-        <path d="M10 20c5.5-2.5.8-6.4 3-13"></path>
-        <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"></path>
-        <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"></path>
+        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+        <path d="m9 16 2 2 4-4"></path>
       </svg>`;
     case 'Food':
       return `<svg ${attrs}>
@@ -137,6 +146,13 @@ function getCategorySvg(categoryId, size = 16) {
         <circle cx="7" cy="17" r="2"></circle>
         <path d="M9 17h6"></path>
         <circle cx="17" cy="17" r="2"></circle>
+      </svg>`;
+    case 'Savings':
+      return `<svg ${attrs}>
+        <path d="M7 20h10"></path>
+        <path d="M10 20c5.5-2.5.8-6.4 3-13"></path>
+        <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"></path>
+        <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"></path>
       </svg>`;
     case 'Other items':
     default:
@@ -186,6 +202,17 @@ function loadState() {
       state.categories = state.categories.filter(
         (c) => c.id !== 'Savings' && c.label !== 'Savings'
       );
+      // Ensure 'Event' category is present
+      const hasEvent = state.categories.some((c) => c.id === 'Event');
+      if (!hasEvent) {
+        const otherIdx = state.categories.findIndex((c) => c.id === 'Other items');
+        const eventCat = { id: 'Event', label: 'Event', allocated: 0.00 };
+        if (otherIdx !== -1) {
+          state.categories.splice(otherIdx, 0, eventCat);
+        } else {
+          state.categories.push(eventCat);
+        }
+      }
     }
     // Migrate any legacy 'Savings' transactions to 'Other items'
     if (Array.isArray(state.transactions)) {
