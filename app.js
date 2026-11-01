@@ -1,8 +1,9 @@
-const STORAGE_KEY = 'personal_money_tracker_live_v2';
+const STORAGE_KEY = 'personal_money_tracker_live_v3';
 
 const DEFAULT_STATE = {
   cycle: 'October 2026 — November 2026',
   status: 'Active',
+  monthlyBudget: 0.00,
   categories: [
     { id: 'Savings', label: 'Savings', allocated: 0.00 },
     { id: 'Food', label: 'Food', allocated: 0.00 },
@@ -181,6 +182,11 @@ function loadState() {
     if (!Array.isArray(state.pastPerformance)) {
       state.pastPerformance = [];
     }
+    // Ensure monthlyBudget is a valid number
+    if (typeof state.monthlyBudget !== 'number' || isNaN(state.monthlyBudget)) {
+      const catSum = (state.categories || []).reduce((acc, c) => acc + Number(c.allocated || 0), 0);
+      state.monthlyBudget = catSum > 0 ? catSum : 0.00;
+    }
     // Strip out legacy demo transactions
     state.transactions = state.transactions.filter(
       (tx) => !['tx-1', 'tx-2', 'tx-3', 'tx-4', 'tx-5'].includes(tx.id)
@@ -230,7 +236,9 @@ function formatRM(num) {
 }
 
 function computeMetrics() {
-  const totalBudget = appState.categories.reduce((acc, c) => acc + Number(c.allocated || 0), 0);
+  const catAllocTotal = appState.categories.reduce((acc, c) => acc + Number(c.allocated || 0), 0);
+  const directBudget = Number(appState.monthlyBudget || 0);
+  const totalBudget = Math.max(directBudget, catAllocTotal);
   const totalSpent = appState.transactions.reduce((acc, t) => acc + Number(t.amount || 0), 0);
   const balanceLeft = totalBudget - totalSpent;
   const remainingCapPct = totalBudget > 0 ? (balanceLeft / totalBudget) * 100 : 0;
@@ -405,17 +413,23 @@ function toggleBalanceVisibility() {
 function updateSettingsLiveTotal() {
   const totalEl = document.getElementById('settings-budget-total-val');
   if (!totalEl) return;
-  const inputs = document.querySelectorAll('#form-settings-budgets [data-settings-cat-idx]');
-  let sum = 0;
-  inputs.forEach((inp) => {
-    const raw = inp.value.trim();
-    const val = raw === '' ? 0 : parseFloat(raw);
-    if (!isNaN(val) && val > 0) sum += val;
-  });
-  totalEl.textContent = formatRM(sum);
+  const m = computeMetrics();
+  totalEl.textContent = formatRM(m.totalBudget);
 }
 
 function renderSettingsBudgets() {
+  const m = computeMetrics();
+  const totalEl = document.getElementById('settings-budget-total-val');
+  if (totalEl) {
+    totalEl.textContent = formatRM(m.totalBudget);
+  }
+
+  const directInput = document.getElementById('setting-input-total-budget');
+  if (directInput && document.activeElement !== directInput) {
+    const curVal = Number(appState.monthlyBudget || m.totalBudget || 0);
+    directInput.value = curVal > 0 ? curVal.toFixed(2) : '';
+  }
+
   const form = document.getElementById('form-settings-budgets');
   if (!form) return;
   form.innerHTML = appState.categories
@@ -430,16 +444,40 @@ function renderSettingsBudgets() {
           </div>
           <div class="amount-field settings-alloc-input-wrap">
             <span class="currency-prefix">RM</span>
-            <input type="number" data-settings-cat-idx="${idx}" class="input-clean input-num" step="10" min="0" value="${allocVal > 0 ? allocVal.toFixed(2) : ''}" placeholder="0.00" aria-label="${escapeHtml(c.label)} budget allocation" />
+            <input type="number" data-settings-cat-idx="${idx}" class="input-clean input-num" inputmode="decimal" step="any" min="0" value="${allocVal > 0 ? allocVal.toFixed(2) : ''}" placeholder="0.00" aria-label="${escapeHtml(c.label)} budget allocation" />
           </div>
         </div>
       `;
     })
     .join('');
 
-  updateSettingsLiveTotal();
   if (!form.dataset.hasInputListener) {
-    form.addEventListener('input', updateSettingsLiveTotal);
+    form.addEventListener('input', () => {
+      const inputs = document.querySelectorAll('#form-settings-budgets [data-settings-cat-idx]');
+      let catSum = 0;
+      inputs.forEach((inp) => {
+        const val = parseFloat(inp.value.trim());
+        if (!isNaN(val) && val > 0) catSum += val;
+      });
+      const curMonthly = Number(appState.monthlyBudget || 0);
+      const effective = Math.max(curMonthly, catSum);
+      if (totalEl) totalEl.textContent = formatRM(effective);
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById('btn-save-settings-budgets');
+      if (saveBtn) saveBtn.click();
+    });
+
+    form.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const saveBtn = document.getElementById('btn-save-settings-budgets');
+        if (saveBtn) saveBtn.click();
+      }
+    });
+
     form.dataset.hasInputListener = 'true';
   }
 }
@@ -1608,7 +1646,75 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Settings: Save Budget Allocations
+  // Settings: Direct Monthly Budget Save
+  const saveTotalBudgetBtn = document.getElementById('btn-save-total-budget');
+  const directTotalBudgetInput = document.getElementById('setting-input-total-budget');
+
+  function handleSaveTotalBudget() {
+    if (!directTotalBudgetInput) return;
+    const raw = directTotalBudgetInput.value.trim();
+    const val = raw === '' ? 0 : parseFloat(raw);
+    if (isNaN(val) || val < 0) {
+      showToast('Please enter a valid budget amount');
+      return;
+    }
+    const cleanVal = Math.round(val * 100) / 100;
+    appState.monthlyBudget = cleanVal;
+    saveState();
+    renderApp();
+    if (directTotalBudgetInput) directTotalBudgetInput.blur();
+    showToast(`Monthly budget set: ${formatRM(cleanVal)}`);
+  }
+
+  if (saveTotalBudgetBtn) {
+    saveTotalBudgetBtn.addEventListener('click', handleSaveTotalBudget);
+  }
+  if (directTotalBudgetInput) {
+    directTotalBudgetInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSaveTotalBudget();
+      }
+    });
+  }
+
+  // Settings: Add On to Budget (Top-up)
+  const applyAddonBtn = document.getElementById('btn-apply-addon-budget');
+  const addonInput = document.getElementById('setting-input-addon');
+
+  function handleApplyAddonBudget() {
+    if (!addonInput) return;
+    const raw = addonInput.value.trim();
+    const addVal = parseFloat(raw);
+    if (isNaN(addVal) || addVal <= 0) {
+      showToast('Please enter an amount to add on');
+      addonInput.focus();
+      return;
+    }
+    const cleanAdd = Math.round(addVal * 100) / 100;
+    const currentMetrics = computeMetrics();
+    const cur = Number(appState.monthlyBudget || 0) > 0 ? Number(appState.monthlyBudget) : currentMetrics.totalBudget;
+    appState.monthlyBudget = Math.round((cur + cleanAdd) * 100) / 100;
+    addonInput.value = '';
+    saveState();
+    renderApp();
+    if (addonInput) addonInput.blur();
+    showToast(`Added ${formatRM(cleanAdd)} to budget! New total: ${formatRM(appState.monthlyBudget)}`);
+  }
+
+  if (applyAddonBtn) {
+    applyAddonBtn.addEventListener('click', handleApplyAddonBudget);
+  }
+  if (addonInput) {
+    addonInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleApplyAddonBudget();
+      }
+    });
+  }
+
+  // Settings: Save Category Caps
   const saveSettingsBtn = document.getElementById('btn-save-settings-budgets');
   if (saveSettingsBtn) {
     saveSettingsBtn.addEventListener('click', () => {
@@ -1624,9 +1730,12 @@ document.addEventListener('DOMContentLoaded', () => {
           total += cleanVal;
         }
       });
+      if (total > Number(appState.monthlyBudget || 0) || !appState.monthlyBudget) {
+        appState.monthlyBudget = total;
+      }
       saveState();
       renderApp();
-      showToast(`Budget saved: ${formatRM(total)}`);
+      showToast(`Category caps saved: ${formatRM(total)}`);
     });
   }
 

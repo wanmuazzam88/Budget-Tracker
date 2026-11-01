@@ -1474,13 +1474,26 @@ body {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   padding-left: 10px;
+  padding-right: 6px;
+}
+
+.amount-field.input-lg {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+}
+
+.amount-field.input-lg .input-clean {
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 
 .amount-field .input-clean {
   border: none;
   background: transparent;
   box-shadow: none;
-  width: 88px;
+  flex: 1;
+  min-width: 60px;
+  width: 100%;
 }
 
 .currency-prefix {
@@ -1957,6 +1970,108 @@ body {
 /* ==========================================================================
    Settings View
    ========================================================================== */
+.budget-direct-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-top: 6px;
+  margin-bottom: 20px;
+}
+
+.budget-input-with-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.budget-input-with-action .amount-field {
+  flex: 1;
+  background: var(--bg-surface);
+}
+
+.budget-input-with-action .btn {
+  flex-shrink: 0;
+  padding: 9px 18px;
+  font-weight: 600;
+}
+
+.budget-addon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.budget-addon-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.budget-addon-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.budget-addon-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.budget-addon-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.budget-addon-action .amount-field {
+  width: 120px;
+  background: var(--bg-surface);
+}
+
+.budget-addon-action .btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.budget-cat-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.budget-cat-title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.budget-cat-heading {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.budget-cat-subheading {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
 .settings-alloc-list {
   display: flex;
   flex-direction: column;
@@ -2817,6 +2932,44 @@ body {
   }
 
   /* 8. Mobile Settings View */
+  .budget-direct-card {
+    padding: 14px 12px;
+    gap: 14px;
+  }
+
+  .budget-input-with-action {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .budget-input-with-action .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .budget-addon-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .budget-addon-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .budget-addon-action .amount-field {
+    flex: 1;
+    width: auto;
+  }
+
+  .budget-addon-action .btn {
+    flex-shrink: 0;
+  }
+
   .settings-alloc-row {
     padding: 10px 12px;
     gap: 8px;

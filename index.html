@@ -195,23 +195,63 @@
         <section class="surface-card settings-card" id="settings-card-budgets">
           <div class="card-header">
             <div>
-              <h2>Budget Allocations</h2>
-              <p class="recent-sub">Enter this month's budget or add on to category budgets</p>
+              <h2>This Month Budget</h2>
+              <p class="recent-sub">Enter your monthly budget or add on extra funds</p>
             </div>
             <div class="settings-budget-total-pill">
-              <span class="settings-budget-total-label">This Month Budget:</span>
+              <span class="settings-budget-total-label">Current:</span>
               <strong id="settings-budget-total-val" class="text-blue">RM 0.00</strong>
             </div>
           </div>
 
-          <form id="form-settings-budgets" class="settings-alloc-list">
-            <!-- Populated by app.js -->
-          </form>
+          <!-- Direct Input: This Month Budget & Add On -->
+          <div class="budget-direct-card">
+            <div class="field-group">
+              <label class="field-label" for="setting-input-total-budget">Set This Month's Budget</label>
+              <div class="budget-input-with-action">
+                <div class="amount-field input-lg">
+                  <span class="currency-prefix">RM</span>
+                  <input type="number" id="setting-input-total-budget" inputmode="decimal" step="any" min="0" placeholder="0.00" class="input-clean input-num" aria-label="Enter this month budget" />
+                </div>
+                <button type="button" id="btn-save-total-budget" class="btn btn-primary">
+                  Save Budget
+                </button>
+              </div>
+              <span class="field-hint">Your overall budget limit for the active cycle.</span>
+            </div>
 
-          <div class="settings-actions">
-            <button type="button" id="btn-save-settings-budgets" class="btn btn-primary">
-              Save Budget
-            </button>
+            <!-- Add On to Budget -->
+            <div class="budget-addon-row">
+              <div class="budget-addon-info">
+                <span class="budget-addon-label">Add On to Budget</span>
+                <span class="budget-addon-sub">Top up extra money into this month's budget</span>
+              </div>
+              <div class="budget-addon-action">
+                <div class="amount-field">
+                  <span class="currency-prefix">+RM</span>
+                  <input type="number" id="setting-input-addon" inputmode="decimal" step="any" min="0" placeholder="0.00" class="input-clean input-num" aria-label="Add on amount to budget" />
+                </div>
+                <button type="button" id="btn-apply-addon-budget" class="btn btn-secondary">
+                  + Add On
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Breakdown (Optional) -->
+          <div class="budget-cat-section">
+            <div class="budget-cat-title-row">
+              <span class="budget-cat-heading">Category Breakdown (Optional)</span>
+              <span class="budget-cat-subheading">Allocate specific caps for each category</span>
+            </div>
+            <form id="form-settings-budgets" class="settings-alloc-list" onsubmit="event.preventDefault(); return false;">
+              <!-- Populated by app.js -->
+            </form>
+            <div class="settings-actions">
+              <button type="button" id="btn-save-settings-budgets" class="btn btn-ghost btn-sm">
+                Save Category Caps
+              </button>
+            </div>
           </div>
         </section>
 
