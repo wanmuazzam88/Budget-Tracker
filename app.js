@@ -1,14 +1,14 @@
-const STORAGE_KEY = 'personal_money_tracker_live_v1';
+const STORAGE_KEY = 'personal_money_tracker_live_v2';
 
 const DEFAULT_STATE = {
   cycle: 'October 2026 — November 2026',
   status: 'Active',
   categories: [
-    { id: 'Savings', label: 'Savings', allocated: 800.00 },
-    { id: 'Food', label: 'Food', allocated: 800.00 },
-    { id: 'Cloth', label: 'Cloth', allocated: 300.00 },
-    { id: 'Grab', label: 'Grab', allocated: 350.00 },
-    { id: 'Other items', label: 'Other items', allocated: 250.00 }
+    { id: 'Savings', label: 'Savings', allocated: 0.00 },
+    { id: 'Food', label: 'Food', allocated: 0.00 },
+    { id: 'Cloth', label: 'Cloth', allocated: 0.00 },
+    { id: 'Grab', label: 'Grab', allocated: 0.00 },
+    { id: 'Other items', label: 'Other items', allocated: 0.00 }
   ],
   transactions: [],
   savingsPlatforms: [
@@ -19,7 +19,7 @@ const DEFAULT_STATE = {
       color: '#2563EB',
       tint: '#EFF6FF',
       balance: 0.00,
-      target: 2000.00
+      target: 0.00
     },
     {
       id: 'shopee',
@@ -28,7 +28,7 @@ const DEFAULT_STATE = {
       color: '#EE4D2D',
       tint: '#FFF1EE',
       balance: 0.00,
-      target: 1000.00
+      target: 0.00
     }
   ],
   savingsRecords: [],
@@ -291,11 +291,12 @@ function renderApp() {
   const m = computeMetrics();
 
   // 1. Hero Balance & Radial Gauge
-  const capFormatted = `${m.remainingCapPct.toFixed(1)}%`;
-  const isBlueZone = m.remainingCapPct > 20;
+  const isBudgetSet = m.totalBudget > 0;
+  const isBlueZone = isBudgetSet ? m.remainingCapPct > 20 : true;
+  const capFormatted = isBudgetSet ? `${m.remainingCapPct.toFixed(1)}%` : '0.0%';
 
   const heroCard = document.getElementById('balance-hero-card');
-  heroCard.classList.toggle('pink-zone-alert', !isBlueZone);
+  heroCard.classList.toggle('pink-zone-alert', isBudgetSet && !isBlueZone);
 
   const heroBalEl = document.getElementById('hero-balance-amount');
   if (heroBalEl) heroBalEl.textContent = formatRM(m.balanceLeft);
@@ -307,11 +308,11 @@ function renderApp() {
     metricCapEl.textContent = capFormatted;
     metricCapEl.className = `stat-value ${isBlueZone ? 'text-blue' : 'text-pink'}`;
   }
-  document.getElementById('hero-zone-text').textContent = isBlueZone ? 'Blue Zone' : 'Low Capacity';
+  document.getElementById('hero-zone-text').textContent = isBudgetSet ? (isBlueZone ? 'Blue Zone' : 'Low Capacity') : 'Set Budget';
 
   // SVG Gauge (r = 75 -> circumference = 471.24)
   const circumference = 2 * Math.PI * 75;
-  const clampedPct = Math.max(0, Math.min(100, m.remainingCapPct));
+  const clampedPct = isBudgetSet ? Math.max(0, Math.min(100, m.remainingCapPct)) : 0;
   const dashOffset = circumference * (1 - clampedPct / 100);
   const gaugeCircle = document.getElementById('gauge-fill-circle');
   if (gaugeCircle) {
@@ -401,12 +402,26 @@ function toggleBalanceVisibility() {
   showToast(isBalanceHidden ? 'Balance hidden' : 'Balance visible');
 }
 
+function updateSettingsLiveTotal() {
+  const totalEl = document.getElementById('settings-budget-total-val');
+  if (!totalEl) return;
+  const inputs = document.querySelectorAll('#form-settings-budgets [data-settings-cat-idx]');
+  let sum = 0;
+  inputs.forEach((inp) => {
+    const raw = inp.value.trim();
+    const val = raw === '' ? 0 : parseFloat(raw);
+    if (!isNaN(val) && val > 0) sum += val;
+  });
+  totalEl.textContent = formatRM(sum);
+}
+
 function renderSettingsBudgets() {
   const form = document.getElementById('form-settings-budgets');
   if (!form) return;
   form.innerHTML = appState.categories
     .map((c, idx) => {
       const meta = getCategoryMeta(c.id);
+      const allocVal = Number(c.allocated || 0);
       return `
         <div class="settings-alloc-row">
           <div class="settings-alloc-left">
@@ -415,12 +430,18 @@ function renderSettingsBudgets() {
           </div>
           <div class="amount-field settings-alloc-input-wrap">
             <span class="currency-prefix">RM</span>
-            <input type="number" data-settings-cat-idx="${idx}" class="input-clean input-num" step="10" min="0" value="${Number(c.allocated).toFixed(2)}" aria-label="${escapeHtml(c.label)} budget allocation" />
+            <input type="number" data-settings-cat-idx="${idx}" class="input-clean input-num" step="10" min="0" value="${allocVal > 0 ? allocVal.toFixed(2) : ''}" placeholder="0.00" aria-label="${escapeHtml(c.label)} budget allocation" />
           </div>
         </div>
       `;
     })
     .join('');
+
+  updateSettingsLiveTotal();
+  if (!form.dataset.hasInputListener) {
+    form.addEventListener('input', updateSettingsLiveTotal);
+    form.dataset.hasInputListener = 'true';
+  }
 }
 
 function formatMonthYearLabel(ym) {
@@ -834,18 +855,19 @@ function renderRecentActivity() {
 
 function renderGuardrails(m) {
   // 3-Second Check
+  const isBudgetSet = m.totalBudget > 0;
   const floor20 = m.totalBudget * 0.2;
   const headroom = m.balanceLeft - floor20;
-  const isRule1Pass = m.remainingCapPct > 20;
+  const isRule1Pass = isBudgetSet ? m.remainingCapPct > 20 : true;
 
   const card1 = document.getElementById('rule-card-1');
   if (card1) {
-    card1.classList.toggle('rule-warning', !isRule1Pass);
+    card1.classList.toggle('rule-warning', isBudgetSet && !isRule1Pass);
   }
 
   const badge1 = document.getElementById('rule1-badge');
   if (badge1) {
-    badge1.textContent = isRule1Pass ? 'Safe' : 'Low Buffer';
+    badge1.textContent = isBudgetSet ? (isRule1Pass ? 'Safe' : 'Low Buffer') : 'Ready';
   }
 
   const headroom1 = document.getElementById('rule1-headroom');
@@ -1591,16 +1613,44 @@ document.addEventListener('DOMContentLoaded', () => {
   if (saveSettingsBtn) {
     saveSettingsBtn.addEventListener('click', () => {
       const inputs = document.querySelectorAll('#form-settings-budgets [data-settings-cat-idx]');
+      let total = 0;
       inputs.forEach((inp) => {
         const idx = Number(inp.getAttribute('data-settings-cat-idx'));
-        const val = parseFloat(inp.value);
+        const raw = inp.value.trim();
+        const val = raw === '' ? 0 : parseFloat(raw);
         if (!isNaN(val) && val >= 0 && appState.categories[idx]) {
-          appState.categories[idx].allocated = Math.round(val * 100) / 100;
+          const cleanVal = Math.round(val * 100) / 100;
+          appState.categories[idx].allocated = cleanVal;
+          total += cleanVal;
         }
       });
       saveState();
       renderApp();
-      showToast('Budget allocations saved');
+      showToast(`Budget saved: ${formatRM(total)}`);
+    });
+  }
+
+  // Shortcut from Overview Hero "This Month Budget" to Settings
+  const heroBudgetBtn = document.getElementById('hero-stat-budget');
+  if (heroBudgetBtn) {
+    heroBudgetBtn.addEventListener('click', () => {
+      switchTab('view-settings');
+      setTimeout(() => {
+        const firstInp = document.querySelector('#form-settings-budgets input');
+        if (firstInp) firstInp.focus();
+      }, 150);
+    });
+  }
+
+  // Shortcut from Categories "Set Budget" button to Settings
+  const gotoBudgetBtn = document.getElementById('btn-goto-set-budgets');
+  if (gotoBudgetBtn) {
+    gotoBudgetBtn.addEventListener('click', () => {
+      switchTab('view-settings');
+      setTimeout(() => {
+        const firstInp = document.querySelector('#form-settings-budgets input');
+        if (firstInp) firstInp.focus();
+      }, 150);
     });
   }
 
