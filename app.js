@@ -1,11 +1,10 @@
-const STORAGE_KEY = 'personal_money_tracker_live_v3';
+const STORAGE_KEY = 'personal_money_tracker_live_v4';
 
 const DEFAULT_STATE = {
   cycle: 'October 2026 — November 2026',
   status: 'Active',
   monthlyBudget: 0.00,
   categories: [
-    { id: 'Savings', label: 'Savings', allocated: 0.00 },
     { id: 'Food', label: 'Food', allocated: 0.00 },
     { id: 'Cloth', label: 'Cloth', allocated: 0.00 },
     { id: 'Grab', label: 'Grab', allocated: 0.00 },
@@ -181,6 +180,20 @@ function loadState() {
     // Ensure pastPerformance exists
     if (!Array.isArray(state.pastPerformance)) {
       state.pastPerformance = [];
+    }
+    // Remove 'Savings' from expense categories if present
+    if (Array.isArray(state.categories)) {
+      state.categories = state.categories.filter(
+        (c) => c.id !== 'Savings' && c.label !== 'Savings'
+      );
+    }
+    // Migrate any legacy 'Savings' transactions to 'Other items'
+    if (Array.isArray(state.transactions)) {
+      state.transactions.forEach((tx) => {
+        if (tx.category === 'Savings') {
+          tx.category = 'Other items';
+        }
+      });
     }
     // Ensure monthlyBudget is a valid number
     if (typeof state.monthlyBudget !== 'number' || isNaN(state.monthlyBudget)) {
